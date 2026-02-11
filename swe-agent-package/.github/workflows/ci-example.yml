@@ -1,0 +1,113 @@
+name: CI (example)
+
+on:
+  push:
+    branches:
+      - example
+  pull_request:
+    branches:
+      - example
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r docker/requirements-dev.txt
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: |
+            apps/web/package-lock.json
+            tests/e2e/package-lock.json
+
+      - name: Install Node dependencies (web)
+        run: npm --prefix apps/web ci
+
+      - name: Install Node dependencies (e2e)
+        run: npm --prefix tests/e2e ci
+
+      - name: Run lint
+        run: |
+          ruff check apps/api
+          npm --prefix apps/web run lint
+          npm --prefix tests/e2e run lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: |
+            apps/web/package-lock.json
+            tests/e2e/package-lock.json
+
+      - name: Install Node dependencies (web)
+        run: npm --prefix apps/web ci
+
+      - name: Install Node dependencies (e2e)
+        run: npm --prefix tests/e2e ci
+
+      - name: Run typecheck
+        run: |
+          npm --prefix apps/web run typecheck
+          npm --prefix tests/e2e run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: solo_unicorn_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d solo_unicorn_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      POSTGRES_DB: solo_unicorn_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: "5432"
+      DJANGO_DEBUG: "0"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r docker/requirements-dev.txt
+
+      - name: Run tests
+        run: pytest apps/api/tests -q
