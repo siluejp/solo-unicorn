@@ -29,6 +29,14 @@
 - Infra: infra/render/**（Render Blueprint/env/db接続）
 
 ## Doneの定義
-- CI: lint/typecheck/unit が通る
+- CI: `make lint` / `make typecheck` / `make test` がすべて成功する
 - Local: `make e2e`（Playwright）が通る
 - DB: Local Postgres と Render Postgres は別だが、マイグレーションは両方に適用できること
+- 失敗時の扱い:
+  - いずれか1つでも失敗したら Done ではない
+  - 失敗ログを tasks.md に記録し、修正後に同じコマンドを再実行して成功を確認する
+
+## 互換ポリシー（テンプレート配布向け）
+- OpenAPI は既定で 3.1 を使う
+- 配布先のツール制約で 3.1 が運用不可な場合のみ、3.0.x を許容する
+- 3.0.x を採用する場合は、`specs/<feature>/contract/openapi.yaml` の先頭バージョンと `specs/<feature>/plan.md` の理由を必ず一致させる

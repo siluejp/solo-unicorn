@@ -27,6 +27,7 @@
 6) 仕様と実装の不一致が出たら「仕様→契約→計画→タスク」を先に更新させる
 
 ## Doneの定義（最終確認）
-- CI: lint/typecheck/unit が通る
-- Local: make e2e が通る
+- CI: `make lint` / `make typecheck` / `make test` がすべて成功
+- Local: `make e2e` が成功
+- 判定ルール: いずれか1つでも失敗したら Done ではない
 - 破壊的変更がある場合: 移行/ロールバックが tasks.md にある
