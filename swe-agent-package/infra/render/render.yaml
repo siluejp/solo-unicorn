@@ -14,6 +14,8 @@ services:
     autoDeploy: true
     pullRequestPreviewsEnabled: false
     envVars:
+      - key: DJANGO_SECRET_KEY
+        sync: false
       - key: DJANGO_DEBUG
         value: "0"
       - key: POSTGRES_DB
