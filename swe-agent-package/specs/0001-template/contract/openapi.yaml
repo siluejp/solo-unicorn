@@ -1,0 +1,42 @@
+openapi: 3.1.0
+info:
+  title: Template API
+  version: 0.1.0
+  description: |
+    テンプレート用の最小 OpenAPI。
+    既定は 3.1。配布先制約時のみ 3.0.x を採用する。
+servers:
+  - url: /api
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string

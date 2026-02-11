@@ -1,0 +1,33 @@
+{
+  "name": "solo-unicorn-test",
+  "dockerComposeFile": [
+    "../docker/docker-compose.yml"
+  ],
+  "service": "workspace",
+  "workspaceFolder": "/workspaces/solo-unicorn-test",
+  "shutdownAction": "stopCompose",
+  "runServices": [
+    "workspace",
+    "db",
+    "api",
+    "web"
+  ],
+  "forwardPorts": [
+    3000,
+    8000,
+    5432
+  ],
+  "postCreateCommand": "bash .devcontainer/postCreate.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-playwright.playwright"
+      ]
+    }
+  }
+}

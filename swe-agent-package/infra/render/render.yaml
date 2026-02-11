@@ -1,0 +1,50 @@
+databases:
+  - name: solo-unicorn-postgres
+    plan: basic-256mb
+    databaseName: solo_unicorn
+    user: solo_unicorn
+
+services:
+  - type: web
+    name: solo-unicorn-api
+    runtime: docker
+    plan: starter
+    dockerContext: .
+    dockerfilePath: ./infra/render/Dockerfile.api
+    autoDeploy: true
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: solo-unicorn-postgres
+          property: database
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: solo-unicorn-postgres
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: solo-unicorn-postgres
+          property: password
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: solo-unicorn-postgres
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: solo-unicorn-postgres
+          property: port
+
+  - type: web
+    name: solo-unicorn-web
+    runtime: docker
+    plan: starter
+    dockerContext: .
+    dockerfilePath: ./infra/render/Dockerfile.web
+    autoDeploy: true
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: https://solo-unicorn-api.onrender.com

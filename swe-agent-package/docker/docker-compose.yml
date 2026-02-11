@@ -1,0 +1,84 @@
+name: solo-unicorn-test
+
+services:
+  workspace:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: sleep infinity
+    volumes:
+      - ..:/workspaces/solo-unicorn-test:cached
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/solo_unicorn_test
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: solo_unicorn_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - solo-unicorn-test-net
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: bash -lc "cd /workspaces/solo-unicorn-test/apps/api && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ..:/workspaces/solo-unicorn-test:cached
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/solo_unicorn_test
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: solo_unicorn_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - solo-unicorn-test-net
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: bash -lc "cd /workspaces/solo-unicorn-test && npm --prefix apps/web install && npm --prefix apps/web run dev -- --hostname 0.0.0.0 --port 3000"
+    volumes:
+      - ..:/workspaces/solo-unicorn-test:cached
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - solo-unicorn-test-net
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: solo_unicorn_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - solo-unicorn-test-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d solo_unicorn_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - solo-unicorn-test-net
+
+volumes:
+  solo-unicorn-test-postgres-data:
+
+networks:
+  solo-unicorn-test-net:

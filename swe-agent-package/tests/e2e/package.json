@@ -1,0 +1,16 @@
+{
+  "name": "solo-unicorn-e2e",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.51.1",
+    "@types/node": "20.17.24",
+    "typescript": "5.8.2"
+  }
+}
