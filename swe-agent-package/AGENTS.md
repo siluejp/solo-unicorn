@@ -24,9 +24,11 @@
 - 計画・タスク化（Plan/Tasks Agent / NO CODE）: specs/<feature>/plan.md と tasks.md のみ編集可
 - Back実装: apps/api/**（migrations/tests含む）
 - Front実装: apps/web/**（型・lint修正含む）
+- UI/UX設計（NO CODE）: specs/<feature>/spec.md・qa/acceptance.md・tasks.md（導線・状態設計・アクセシビリティ）
 - QA実装: tests/e2e/**（acceptance.md と一致させる）
 - DevEx: .devcontainer/**, docker/**, Makefile
 - Infra: infra/render/**（Render Blueprint/env/db接続）
+- CI/CD: .github/workflows/**（GitHub Actions の品質ゲート管理）
 
 ## Doneの定義
 - CI: `make lint` / `make typecheck` / `make test` がすべて成功する
