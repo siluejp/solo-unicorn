@@ -10,7 +10,7 @@ export default defineConfig({
   },
   webServer: {
     command:
-      "npm --prefix ../../apps/web install && npm --prefix ../../apps/web run dev -- --hostname 0.0.0.0 --port 3000",
+      "bash -lc 'cd ../../apps/api && python manage.py migrate && python manage.py runserver 0.0.0.0:8000 >/tmp/solo-unicorn-api.log 2>&1 & until curl -sf http://127.0.0.1:8000/api/health/ >/dev/null; do sleep 1; done; API_BASE_URL=http://127.0.0.1:8000 npm --prefix ../../apps/web run dev -- --hostname 0.0.0.0 --port 3000'",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: true,
     timeout: 120_000

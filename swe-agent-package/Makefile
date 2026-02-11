@@ -3,6 +3,7 @@
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE := docker compose -f $(COMPOSE_FILE)
 RUN_WORKSPACE := $(COMPOSE) run --rm workspace bash -lc
+PLAYWRIGHT_BROWSERS_PATH := /workspaces/solo-unicorn-test/.cache/ms-playwright
 
 up:
 	$(COMPOSE) up -d
@@ -14,7 +15,7 @@ logs:
 	$(COMPOSE) logs -f --tail=100
 
 bootstrap:
-	$(RUN_WORKSPACE) "cd /workspaces/solo-unicorn-test && python -m pip install -r docker/requirements-dev.txt && npm --prefix apps/web install && npm --prefix tests/e2e install && npm --prefix tests/e2e exec playwright install --with-deps chromium"
+	$(RUN_WORKSPACE) "cd /workspaces/solo-unicorn-test && mkdir -p $(PLAYWRIGHT_BROWSERS_PATH) && python -m pip install -r docker/requirements-dev.txt && npm --prefix apps/web install && npm --prefix tests/e2e install && PLAYWRIGHT_BROWSERS_PATH=$(PLAYWRIGHT_BROWSERS_PATH) npm --prefix tests/e2e exec playwright install --with-deps chromium"
 
 lint:
 	$(RUN_WORKSPACE) "cd /workspaces/solo-unicorn-test && ruff check apps/api && npm --prefix apps/web run lint && npm --prefix tests/e2e run lint"
@@ -26,7 +27,7 @@ test:
 	$(RUN_WORKSPACE) "cd /workspaces/solo-unicorn-test && pytest apps/api/tests -q"
 
 e2e:
-	$(RUN_WORKSPACE) "cd /workspaces/solo-unicorn-test && npm --prefix tests/e2e install && npm --prefix tests/e2e exec playwright install --with-deps chromium && npm --prefix tests/e2e run test"
+	$(RUN_WORKSPACE) "cd /workspaces/solo-unicorn-test && PLAYWRIGHT_BROWSERS_PATH=$(PLAYWRIGHT_BROWSERS_PATH) npm --prefix tests/e2e run test"
 
 migrate:
 	$(RUN_WORKSPACE) "cd /workspaces/solo-unicorn-test/apps/api && python manage.py migrate"
